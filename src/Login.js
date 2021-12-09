@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -15,6 +15,7 @@ import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import Axios from 'axios';
 import Alert from '@material-ui/core/Alert';
 import { useHistory } from 'react-router-dom';
+import AlertTitle from '@material-ui/core/AlertTitle'
 
 function Copyright (props) {
   return (
@@ -28,6 +29,9 @@ const theme = createTheme();
 
 export default function SignIn () {
   let history = useHistory();
+  const [isLogin, setIsLogin] = useState(false);
+  const [isShowMessage, setIsShowMessage] = useState(false);
+  const [messge, setMesagee] = useState('');
 
   const handleSubmit = (event) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -38,6 +42,7 @@ export default function SignIn () {
       email: data.get('username'),
       password: data.get('password'),
     });
+
 
     // eslint-disable-next-line no-console
     let loginData = `grant_type=password&username=${data.get('username')}&password=${data.get('password')}`;
@@ -50,15 +55,21 @@ export default function SignIn () {
       url: 'http://xxxxxxxxx/Token',
       data: loginData
     }).then(response => {
+
       console.log(response);
       if (response.status === 200) {
+        setIsLogin(true);
+        setMesagee('success.')
         history.push('/detail')
       } else {
+        setIsShowMessage(true);
         console.log(response)
       }
     }).catch(error => {
+      setIsShowMessage(true);
       console.log(error)
     });
+    setMesagee('error')
   };
 
   return (
@@ -103,7 +114,12 @@ export default function SignIn () {
             {/* <Alert severity="error">
               <AlertTitle >Error</AlertTitle>The user name or password is incorrect.
             </Alert> */}
-            <Alert severity="success" >success.</Alert>
+            <div style={{ display: isShowMessage ? 'block' : 'none' }}>
+              <Alert severity={isLogin ? "success" : "error"}>
+                <AlertTitle ></AlertTitle>{messge}
+              </Alert>
+            </div>
+
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
